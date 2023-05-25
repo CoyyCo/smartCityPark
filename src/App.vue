@@ -11,9 +11,21 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { onMounted } from 'vue';
-import modelfile from './assets/model/bak.glb?url'
-// import sky from './assets/model/HdrSkyCloudy004_HDR_1K.exr?url'
-const initScene = async() => {
+// import modelfile from './assets/model/bak.glb?url'
+import { GUI } from "dat.gui";
+import {useIdb} from './hooks/useIndexdbStore';
+//计算加载时间
+let start: number,end:number;
+start = window.performance.now()
+
+const gui = new GUI();
+let s: any = null //全局缓存sprite
+//帧率控制
+const clock = new THREE.Clock()
+const FPS = 30;
+const singleFrameTime = (1 / FPS)
+let timeStamp = 0;
+const initScene = async () => {
   const scene = new THREE.Scene()
   // scene.background =await new THREE.TextureLoader().loadAsync(sky)
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 4000);
@@ -43,6 +55,7 @@ const initOrbitControls = (camera: Camera, canvas: HTMLCanvasElement) => {
 }
 const initLight = (scene: Scene) => {
   const light = new THREE.AmbientLight(0xffffff, 1); // soft white light
+  gui.add(light, "intensity", 0, 1, 0.01) //光照强度控制
   scene.add(light);
   // const pointLight = new THREE.PointLight(0xffffff, 1, 0);
   // pointLight.position.set(500, 500, 500);
@@ -54,18 +67,16 @@ const initLight = (scene: Scene) => {
 const loadModel = async (scene: Scene) => {
   let loader = new GLTFLoader()
   let dracoLoader = new DRACOLoader()
-  dracoLoader.setDecoderPath("/public/draco/")
+  dracoLoader.setDecoderPath("/draco/")
   loader.setDRACOLoader(dracoLoader)
-  const glb = await loader.loadAsync(modelfile)
+  let res = await useIdb('park')//远程或者indexdb数据库种加载模型
+  const glb = await loader.loadAsync(URL.createObjectURL(res as Blob))
   const model = glb.scene
   model.position.set(0, 0, 0)
   model.scale.set(3, 3, 3)
   scene.add(model)
 }
-const clock = new THREE.Clock()
-const FPS = 30;
-const singleFrameTime = (1 / FPS)
-let timeStamp = 0;
+
 const update = (renderer: WebGLRenderer, scene: Scene, camera: Camera, controls: any, composer: any) => {
   requestAnimationFrame(() => update(renderer, scene, camera, controls, composer))
   const delta = clock.getDelta() //获取上一次请求渲染的时间
@@ -98,7 +109,7 @@ const InitRaycaster = (camera: Camera, scene: Scene, outlinePass: OutlinePass) =
       if (s)
         scene.remove(s) //删除上一个
       const x = new THREE.Box3().setFromObject(obj)
-      s = addSprite(scene, obj.name,x.max)
+      s = addSprite(scene, obj.name, x.max)
     }
   })
 }
@@ -120,7 +131,6 @@ const initPostprocessing = (renderer: WebGLRenderer, scene: Scene, camera: Camer
   composer.addPass(effectFXAA);
   return { outlinePass, composer }
 }
-
 //给模型添加动态精灵文字---start
 //1 使用canvas绘制一段文字
 const initcanvas = (name: string) => {
@@ -134,7 +144,7 @@ const initcanvas = (name: string) => {
   return c
 }
 //2.将canvas作为材质传给spritematerial
-const initSpriteMaterial = (canvas: HTMLCanvasElement,vec3:THREE.Vector3) => {
+const initSpriteMaterial = (canvas: HTMLCanvasElement, vec3: THREE.Vector3) => {
   const map = new THREE.CanvasTexture(canvas)
   const material = new THREE.SpriteMaterial({
     map: map,
@@ -142,20 +152,18 @@ const initSpriteMaterial = (canvas: HTMLCanvasElement,vec3:THREE.Vector3) => {
   })
   const sprite = new THREE.Sprite(material)
   sprite.scale.set(20, 20)
-  sprite.position.set(vec3.x, vec3.y+20, vec3.z)
+  sprite.position.set(vec3.x, vec3.y + 20, vec3.z)
   return sprite
 }
-
 //3 整合
-const addSprite = (scene: Scene, name: string,vec3:THREE.Vector3) => {
+const addSprite = (scene: Scene, name: string, vec3: THREE.Vector3) => {
   const c = initcanvas(name);
-  const sprite = initSpriteMaterial(c,vec3)
+  const sprite = initSpriteMaterial(c, vec3)
   scene.add(sprite)
   return sprite
 }
 //---end
-let s: any = null //全局缓存sprite
-const run =async () => {
+const run = async () => {
   const { scene, camera, renderer, canvas } = await initScene()
   initLight(scene)
   const { outlinePass, composer } = initPostprocessing(renderer, scene, camera) //后期处理，给物体添加轮廓线
@@ -167,6 +175,8 @@ const run =async () => {
 
 onMounted(() => {
   run()
+  end = window.performance.now()
+  console.log(`程序执行了${end-start} 毫秒`)
 })
 </script>
 <style scoped lang="scss"></style>

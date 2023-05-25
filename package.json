@@ -9,8 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/dat.gui": "^0.7.10",
     "@types/three": "^0.152.0",
+    "dat.gui": "^0.7.9",
     "html2canvas": "^1.4.1",
+    "idb": "^7.1.1",
     "sass": "^1.62.1",
     "scss": "^0.2.4",
     "three": "^0.152.2",
