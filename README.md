@@ -1,7 +1,7 @@
-###install
+### install
 yarn install
 
-###run
+### run
 yarn dev
 
 ###show
