@@ -13,7 +13,6 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { onMounted } from 'vue';
 import { GUI } from "dat.gui";
 import { useIdb } from './hooks/useIndexdbStore';
-import { ColorSpaceNode, mod } from 'three/examples/jsm/nodes/Nodes.js';
 //计算加载时间
 let start: number, end: number;
 start = window.performance.now()
@@ -77,7 +76,7 @@ const loadModel = async (scene: Scene) => {
   const glb = await loader.loadAsync(URL.createObjectURL(res as Blob))
   const model = glb.scene
   model.position.set(0, 0, 0)
-  model.scale.set(3, 3, 3)
+  model.scale.set(5, 5, 5)
   scene.add(model)
 }
 
@@ -253,7 +252,7 @@ const run = async () => {
   const { outlinePass, composer } = initPostprocessing(renderer, scene, camera) //后期处理，给物体添加轮廓线
   InitRaycaster(camera, scene, outlinePass)
   const controls = initOrbitControls(camera, canvas)
-  // loadModel(scene)
+  loadModel(scene)
   const { model } = await initPersonModel(scene)
   update(renderer, scene, camera, controls, composer, model)
 }
