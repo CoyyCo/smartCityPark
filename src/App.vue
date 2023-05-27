@@ -76,7 +76,7 @@ const loadModel = async (scene: Scene) => {
   const glb = await loader.loadAsync(URL.createObjectURL(res as Blob))
   const model = glb.scene
   model.position.set(0, 0, 0)
-  model.scale.set(5, 5, 5)
+  model.scale.set(3, 3, 3)
   scene.add(model)
 }
 
@@ -163,7 +163,7 @@ const initPersonModel = async (scene: Scene) => {
   let glb = await loader.loadAsync(URL.createObjectURL(res as Blob))
   let model = glb.scene
   model.position.set(-95, 0, 150)
-  model.scale.set(2, 2, 2)
+  model.scale.set(3, 3, 3)
   model.rotateY(Math.PI)
   //获取动画数据
   let animations: AnimationClip[] = glb.animations
@@ -186,12 +186,12 @@ const initStraightLine = (scene: Scene) => {
     new THREE.Vector3(-40, 0, 50)
   ];
 
-  let lineMaterial = new THREE.LineBasicMaterial({
-    color: '#fff'
-  })
-  let lineGeometry = new THREE.BufferGeometry().setFromPoints(points)
-  let line = new THREE.Line(lineGeometry, lineMaterial)
-  scene.add(line)
+  // let lineMaterial = new THREE.LineBasicMaterial({
+  //   color: '#fff'
+  // })
+  // let lineGeometry = new THREE.BufferGeometry().setFromPoints(points)
+  // let line = new THREE.Line(lineGeometry, lineMaterial)
+  // scene.add(line)
   anchor.push(points[0]) //当前运动所在直线的两个锚点
   anchor.push(points[1])
 }
