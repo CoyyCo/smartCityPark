@@ -4,5 +4,5 @@ yarn install
 ### run
 yarn dev
 
-###show
+### show
 ![image](https://github.com/CoyyCo/smartCityPark/blob/master/public/show.jpeg)
